@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regresión No Lineal - Calculadora Avanzada</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .data-input {
+            margin-bottom: 20px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .data-grid input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .data-grid input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #229954, #1e8449);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .model-selector {
+            margin-bottom: 20px;
+        }
+
+        .model-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+        }
+
+        .data-table {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.2em;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .equation-display {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .projection-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .projection-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .projection-result {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #27ae60;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Regresión No Lineal</h1>
+            <p>Herramienta avanzada para análisis de regresión no lineal con múltiples modelos</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">📊 Entrada de Datos</h2>
+                
+                <div class="model-selector">
+                    <label for="modelType" style="display: block; margin-bottom: 8px; font-weight: 600;">Tipo de Modelo:</label>
+                    <select id="modelType">
+                        <option value="exponential">Exponencial: y = a × e^(bx)</option>
+                        <option value="power">Potencial: y = a × x^b</option>
+                        <option value="logarithmic">Logarítmico: y = a × ln(x) + b</option>
+                    </select>
+                </div>
+
+                <div class="data-input">
+                    <div class="data-grid">
+                        <input type="number" id="inputX" placeholder="Valor X" step="any">
+                        <input type="number" id="inputY" placeholder="Valor Y" step="any">
+                        <button class="btn btn-primary" onclick="addDataPoint()">➕ Agregar</button>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>X</th>
+                                <th>Y</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="calculateRegression()">🔬 Calcular Regresión</button>
+                    <button class="btn btn-secondary" onclick="clearData()">🗑️ Limpiar Datos</button>
+                    <button class="btn btn-secondary" onclick="loadSampleData()">📝 Datos de Ejemplo</button>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2 class="section-title">📈 Resultados del Análisis</h2>
+                <div id="resultsContainer">
+                    <p style="text-align: center; color: #7f8c8d; font-style: italic; padding: 40px;">
+                        Ingrese al menos 3 puntos de datos y haga clic en "Calcular Regresión" para ver los resultados.
+                    </p>
+                </div>
+            </div>
+
+            <div class="chart-container full-width">
+                <canvas id="regressionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dataPoints = [];
+        let regressionParams = null;
+        let chart = null;
+
+        function addDataPoint() {
+            const x = parseFloat(document.getElementById('inputX').value);
+            const y = parseFloat(document.getElementById('inputY').value);
+            
+            if (isNaN(x) || isNaN(y)) {
+                alert('Por favor, ingrese valores numéricos válidos para X e Y.');
+                return;
+            }
+            
+            dataPoints.push({x, y});
+            updateDataTable();
+            clearInputs();
+        }
+
+        function clearInputs() {
+            document.getElementById('inputX').value = '';
+            document.getElementById('inputY').value = '';
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            dataPoints.forEach((point, index) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${point.x}</td>
+                    <td>${point.y}</td>
+                    <td><button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="removeDataPoint(${index})">❌</button></td>
+                `;
+            });
+        }
+
+        function removeDataPoint(index) {
+            dataPoints.splice(index, 1);
+            updateDataTable();
+        }
+
+        function clearData() {
+            dataPoints = [];
+            updateDataTable();
+            document.getElementById('resultsContainer').innerHTML = `
+                <p style="text-align: center; color: #7f8c8d; font-style: italic; padding: 40px;">
+                    Ingrese al menos 3 puntos de datos y haga clic en "Calcular Regresión" para ver los resultados.
+                </p>
+            `;
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        }
+
+        function loadSampleData() {
+            dataPoints = [
+                {x: 1, y: 2.5},
+                {x: 2, y: 6.1},
+                {x: 3, y: 15.2},
+                {x: 4, y: 37.8},
+                {x: 5, y: 94.2},
+                {x: 6, y: 235.6}
+            ];
+            updateDataTable();
+        }
+
+        function calculateRegression() {
+            if (dataPoints.length < 3) {
+                alert('Se necesitan al menos 3 puntos de datos para realizar la regresión.');
+                return;
+            }
+
+            const modelType = document.getElementById('modelType').value;
+            let params, equation;
+
+            try {
+                switch (modelType) {
+                    case 'exponential':
+                        params = calculateExponentialRegression();
+                        equation = `y = ${params.a.toFixed(4)} × e^(${params.b.toFixed(4)}x)`;
+                        break;
+                    case 'power':
+                        params = calculatePowerRegression();
+                        equation = `y = ${params.a.toFixed(4)} × x^${params.b.toFixed(4)}`;
+                        break;
+                    case 'logarithmic':
+                        params = calculateLogarithmicRegression();
+                        equation = `y = ${params.a.toFixed(4)} × ln(x) + ${params.b.toFixed(4)}`;
+                        break;
+                    }
+
+                regressionParams = {params, modelType, equation};
+                
+                const metrics = calculateMetrics(params, modelType);
+                displayResults(equation, metrics);
+                createChart(params, modelType);
+                
+            } catch (error) {
+                alert('Error en el cálculo: ' + error.message);
+            }
+        }
+
+        function calculateExponentialRegression() {
+            // Transformación logarítmica: ln(y) = ln(a) + bx
+            const n = dataPoints.length;
+            let sumX = 0, sumLnY = 0, sumXLnY = 0, sumX2 = 0;
+            
+            for (let point of dataPoints) {
+                if (point.y <= 0) throw new Error('Los valores de Y deben ser positivos para regresión exponencial');
+                sumX += point.x;
+                sumLnY += Math.log(point.y);
+                sumXLnY += point.x * Math.log(point.y);
+                sumX2 += point.x * point.x;
+            }
+            
+            const b = (n * sumXLnY - sumX * sumLnY) / (n * sumX2 - sumX * sumX);
+            const lnA = (sumLnY - b * sumX) / n;
+            const a = Math.exp(lnA);
+            
+            return {a, b};
+        }
+
+        function calculatePowerRegression() {
+            // Transformación logarítmica: ln(y) = ln(a) + b*ln(x)
+            const n = dataPoints.length;
+            let sumLnX = 0, sumLnY = 0, sumLnXLnY = 0, sumLnX2 = 0;
+            
+            for (let point of dataPoints) {
+                if (point.x <= 0 || point.y <= 0) throw new Error('Los valores de X e Y deben ser positivos para regresión potencial');
+                sumLnX += Math.log(point.x);
+                sumLnY += Math.log(point.y);
+                sumLnXLnY += Math.log(point.x) * Math.log(point.y);
+                sumLnX2 += Math.log(point.x) * Math.log(point.x);
+            }
+            
+            const b = (n * sumLnXLnY - sumLnX * sumLnY) / (n * sumLnX2 - sumLnX * sumLnX);
+            const lnA = (sumLnY - b * sumLnX) / n;
+            const a = Math.exp(lnA);
+            
+            return {a, b};
+        }
+
+        function calculateLogarithmicRegression() {
+            const n = dataPoints.length;
+            let sumLnX = 0, sumY = 0, sumLnXY = 0, sumLnX2 = 0;
+            
+            for (let point of dataPoints) {
+                if (point.x <= 0) throw new Error('Los valores de X deben ser positivos para regresión logarítmica');
+                sumLnX += Math.log(point.x);
+                sumY += point.y;
+                sumLnXY += Math.log(point.x) * point.y;
+                sumLnX2 += Math.log(point.x) * Math.log(point.x);
+            }
+            
+            const a = (n * sumLnXY - sumLnX * sumY) / (n * sumLnX2 - sumLnX * sumLnX);
+            const b = (sumY - a * sumLnX) / n;
+            
+            return {a, b};
+        }
+
+        
+            
+
+        function predictValue(x, params, modelType) {
+            switch (modelType) {
+                case 'exponential':
+                    return params.a * Math.exp(params.b * x);
+                case 'power':
+                    return params.a * Math.pow(x, params.b);
+                case 'logarithmic':
+                    return params.a * Math.log(x) + params.b;
+                default:
+                    return 0;
+            }
+        }
+
+        function calculateMetrics(params, modelType) {
+            const n = dataPoints.length;
+            let sumSquaredErrors = 0;
+            let sumAbsoluteErrors = 0;
+            let sumY = 0;
+            let sumSquaredY = 0;
+            
+            for (let point of dataPoints) {
+                const predicted = predictValue(point.x, params, modelType);
+                const error = point.y - predicted;
+                
+                sumSquaredErrors += error * error;
+                sumAbsoluteErrors += Math.abs(error);
+                sumY += point.y;
+                sumSquaredY += point.y * point.y;
+            }
+            
+            const meanY = sumY / n;
+            let sumSquaredDeviations = 0;
+            
+            for (let point of dataPoints) {
+                sumSquaredDeviations += Math.pow(point.y - meanY, 2);
+            }
+            
+            const mse = sumSquaredErrors / n;
+            const mae = sumAbsoluteErrors / n;
+            const r2 = 1 - (sumSquaredErrors / sumSquaredDeviations);
+            const standardError = Math.sqrt(sumSquaredErrors / (n - 2));
+            
+            return {mse, mae, r2, standardError};
+        }
+
+        function displayResults(equation, metrics) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="equation-display">
+                    <strong>Ecuación de Regresión:</strong><br>
+                    ${equation}
+                </div>
+                
+                <div class="results-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Error Cuadrático Medio (ECM)</div>
+                        <div class="metric-value">${metrics.mse.toFixed(6)}</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Error Medio Absoluto (EMA)</div>
+                        <div class="metric-value">${metrics.mae.toFixed(6)}</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Coeficiente de Determinación (R²)</div>
+                        <div class="metric-value">${metrics.r2.toFixed(6)}</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Error Estándar de la Regresión</div>
+                        <div class="metric-value">${metrics.standardError.toFixed(6)}</div>
+                    </div>
+                </div>
+                
+                <div class="projection-section">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">🔮 Proyección de Datos</h3>
+                    <div class="projection-input">
+                        <label for="projectionX" style="font-weight: 600;">Valor X a proyectar:</label>
+                        <input type="number" id="projectionX" placeholder="Ingrese valor X" step="any" style="flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 5px;">
+                        <button class="btn btn-success" onclick="projectValue()" style="padding: 10px 20px;">Calcular Y</button>
+                    </div>
+                    <div id="projectionResult"></div>
+                </div>
+            `;
+        }
+
+        function projectValue() {
+            if (!regressionParams) {
+                alert('Primero debe calcular la regresión.');
+                return;
+            }
+            
+            const x = parseFloat(document.getElementById('projectionX').value);
+            if (isNaN(x)) {
+                alert('Por favor, ingrese un valor numérico válido para X.');
+                return;
+            }
+            
+            const y = predictValue(x, regressionParams.params, regressionParams.modelType);
+            
+            document.getElementById('projectionResult').innerHTML = `
+                <div class="projection-result">
+                    Para X = ${x}, el valor proyectado es: Y = ${y.toFixed(6)}
+                </div>
+            `;
+        }
+
+        function createChart(params, modelType) {
+            const ctx = document.getElementById('regressionChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            // Generar puntos para la curva de regresión
+            const minX = Math.min(...dataPoints.map(p => p.x));
+            const maxX = Math.max(...dataPoints.map(p => p.x));
+            const range = maxX - minX;
+            const step = range / 100;
+            
+            const regressionData = [];
+            for (let x = minX - range * 0.1; x <= maxX + range * 0.1; x += step) {
+                try {
+                    const y = predictValue(x, params, modelType);
+                    if (isFinite(y) && y > 0) {
+                        regressionData.push({x, y});
+                    }
+                } catch (e) {
+                    // Skip invalid points
+                }
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Datos Originales',
+                            data: dataPoints,
+                            backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            pointRadius: 8,
+                            pointHoverRadius: 10
+                        },
+                        {
+                            label: 'Curva de Regresión',
+                            data: regressionData,
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            pointRadius: 0,
+                            showLine: true,
+                            borderWidth: 3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Análisis de Regresión No Lineal',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Variable X',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Variable Y',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    }
+                }
+            });
+        }
+
+        // Permitir agregar datos con Enter
+        document.getElementById('inputX').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('inputY').focus();
+            }
+        });
+
+        document.getElementById('inputY').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addDataPoint();
+            }
+        });
+
+        document.getElementById('projectionX').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                projectValue();
+            }
+        });
+    </script>
+</body>
+</html>
